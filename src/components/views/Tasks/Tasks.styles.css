@@ -163,6 +163,7 @@
 }
 
 @media (min-width: 900px) {
+
    #tasks {
       flex-direction: row;
    }
@@ -179,6 +180,7 @@
    #tasks .wrapper_list {
       margin-top: 0;
    }
+
 }
 
 @media (min-width: 1300px) {
