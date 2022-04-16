@@ -1,21 +1,32 @@
 import "./TaskForm.styles.css";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 
 export const TaskForm = () => {
   const initialValues = {
     title: "",
     status: "",
-    importance: "",
+    priority: "",
     description: "",
   };
 
   const onSubmit = () => {
-    alert("Formulario enviado");
+    alert();
   };
 
-  const formik = useFormik({ initialValues, onSubmit });
+  const required = "Este campo es requerido";
 
-  const { handleSubmit, handleChange } = formik;
+  const validationSchema = Yup.object().shape({
+    title: Yup.string()
+      .min(6, "No tiene la longitud mínima")
+      .required(required),
+    status: Yup.string().required(required),
+    priority: Yup.string().required(required),
+  });
+
+  const formik = useFormik({ initialValues, validationSchema, onSubmit });
+
+  const { handleChange, handleSubmit, errors } = formik;
 
   return (
     <secteion className="task-form">
@@ -26,6 +37,7 @@ export const TaskForm = () => {
           <div>
             <input name="title" onChange={handleChange} placeholder="Título" />
           </div>
+          {errors.title && <div>{errors.title}</div>}
           <div>
             <select name="status" onChange={handleChange}>
               <option value="">Seleccionar un estado</option>
@@ -34,14 +46,16 @@ export const TaskForm = () => {
               <option value="FINISHED">Teminada</option>
             </select>
           </div>
+          {errors.status && <div>{errors.status}</div>}
           <div>
-            <select name="importance" onChange={handleChange}>
+            <select name="priority" onChange={handleChange}>
               <option value="">Seleccionar una prioridad</option>
               <option value="LOW">Baja</option>
               <option value="MEDIUM">Media</option>
               <option value="HIGH">Alta</option>
             </select>
           </div>
+          {errors.priority && <div>{errors.priority}</div>}
         </div>
         <div>
           <textarea
