@@ -12,6 +12,7 @@ import { useResize } from "../../../hooks/useResize";
 import { Header } from "../../Header/Header";
 import { TaskForm } from "../../TaskForm/TaskForm";
 import { Card } from "../../Card/Card";
+import debounce from "lodash.debounce";
 
 const { REACT_APP_API_ENDPOINT: API_ENDPOINT } = process.env;
 
@@ -21,6 +22,7 @@ export const Tasks = () => {
   const [tasksfromWho, setTasksfromWho] = useState("ALL");
   const { loading, setLoading } = useState(false);
   const { isPhone } = useResize();
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -38,6 +40,12 @@ export const Tasks = () => {
       });
   }, [tasksfromWho]);
 
+  useEffect(() => {
+    if (search)
+      setRenderList(list.filter((data) => data.title.startsWith(search)));
+    else setRenderList(list);
+  }, [search]);
+
   const limitString = (str) => {
     if (str.length > 170)
       return { string: str.slice(0, 167).concat("..."), addButton: true };
@@ -48,21 +56,9 @@ export const Tasks = () => {
     return renderList?.map((data) => <Card key={data._id} data={data} />);
   };
 
-  const renderNewCards = () => {
-    return list
-      ?.filter((data) => data.status === "NEW")
-      .map((data) => <Card key={data._id} data={data} />);
-  };
-
-  const renderInProgressCards = () => {
+  const renderColumnCards = (text) => {
     return renderList
-      ?.filter((data) => data.status === "IN PROGRESS")
-      .map((data) => <Card key={data._id} data={data} />);
-  };
-
-  const renderFinishedCars = () => {
-    return renderList
-      ?.filter((data) => data.status === "FINISHED")
+      ?.filter((data) => data.status === text)
       .map((data) => <Card key={data._id} data={data} />);
   };
 
@@ -73,6 +69,10 @@ export const Tasks = () => {
         list.filter((data) => data.importance === event.currentTarget.value)
       );
   };
+
+  const handleSearch = debounce((event) => {
+    setSearch(event?.target?.value);
+  }, 1000);
 
   return (
     <>
@@ -135,15 +135,15 @@ export const Tasks = () => {
                 <>
                   <div className="list">
                     <h3>Nuevas</h3>
-                    {renderNewCards()}
+                    {renderColumnCards("NEW")}
                   </div>
                   <div className="list">
                     <h3>En progreso</h3>
-                    {renderInProgressCards()}
+                    {renderColumnCards("IN_PROGRESS")}
                   </div>
                   <div className="list">
                     <h3>Finalizadas</h3>
-                    {renderFinishedCars()}
+                    {renderColumnCards("FINISHED")}
                   </div>
                 </>
               )}
