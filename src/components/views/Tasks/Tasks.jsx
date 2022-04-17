@@ -1,22 +1,30 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Skeleton from "react-loading-skeleton";
+import {
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormControlLabel,
+} from "@mui/material";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./Tasks.styles.css";
 import { useResize } from "../../../hooks/useResize";
 import { Header } from "../../Header/Header";
-import { Card } from "../../../components/Card/Card";
 import { TaskForm } from "../../TaskForm/TaskForm";
+import { Card } from "../../Card/Card";
 
 const { REACT_APP_API_ENDPOINT: API_ENDPOINT } = process.env;
 
 export const Tasks = () => {
   const [list, setList] = useState(null);
+  const [renderList, setRenderList] = useState(null);
+  const [tasksfromWho, setTasksfromWho] = useState("ALL");
   const { loading, setLoading } = useState(false);
   const { isPhone } = useResize();
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${API_ENDPOINT}task`, {
+    fetch(`${API_ENDPOINT}task${tasksfromWho === "ME" ? "me" : ""}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -25,9 +33,10 @@ export const Tasks = () => {
       .then((response) => response.json())
       .then((data) => {
         setList(data.result);
+        setRenderList(data.result);
         setLoading(false);
       });
-  }, []);
+  }, [tasksfromWho]);
 
   const limitString = (str) => {
     if (str.length > 170)
@@ -36,7 +45,7 @@ export const Tasks = () => {
   };
 
   const renderAllCards = () => {
-    return list?.map((data) => <Card key={data._id} data={data} />);
+    return renderList?.map((data) => <Card key={data._id} data={data} />);
   };
 
   const renderNewCards = () => {
@@ -46,15 +55,23 @@ export const Tasks = () => {
   };
 
   const renderInProgressCards = () => {
-    return list
+    return renderList
       ?.filter((data) => data.status === "IN PROGRESS")
       .map((data) => <Card key={data._id} data={data} />);
   };
 
   const renderFinishedCars = () => {
-    return list
+    return renderList
       ?.filter((data) => data.status === "FINISHED")
       .map((data) => <Card key={data._id} data={data} />);
+  };
+
+  const handleChangeImportance = (event) => {
+    if (event.currentTarget.value === "ALL") setRenderList(list);
+    else
+      setRenderList(
+        list.filter((data) => data.importance === event.currentTarget.value)
+      );
   };
 
   return (
@@ -66,8 +83,42 @@ export const Tasks = () => {
           <div className="list_header">
             <h2>Mis Tareas</h2>
           </div>
+          <div className="filters">
+            <FormControl>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                onChange={(event) => setTasksfromWho(event.currentTarget.value)}
+              >
+                <FormControlLabel
+                  value="ALL"
+                  control={<Radio />}
+                  label="Todas"
+                />
+                <FormControlLabel
+                  value="ME"
+                  control={<Radio />}
+                  label="Mis tareas"
+                />
+              </RadioGroup>
+            </FormControl>
+            <div className="search">
+              <input
+                type="text"
+                placeholder="Buscar por título..."
+                onChange={handleSearch}
+              />
+            </div>
+            <select name="importance" onChange={handleChangeImportance}>
+              <option value="">Seleccionar una prioridad</option>
+              <option value="ALL">Todas</option>
+              <option value="LOW">Baja</option>
+              <option value="MEDIUM">Media</option>
+              <option value="HIGH">Alta</option>
+            </select>
+          </div>
           {isPhone ? (
-            !list?.length ? (
+            !renderList?.length ? (
               <div>No hay tareas creadas</div>
             ) : loading ? (
               <Skeleton />
@@ -76,7 +127,7 @@ export const Tasks = () => {
             )
           ) : (
             <div className="list_group">
-              {!list?.length ? (
+              {!renderList?.length ? (
                 <div>No hay tareas creadas</div>
               ) : loading ? (
                 <Skeleton />

@@ -7,13 +7,17 @@ export const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userName");
     navigate("/login", { replace: true });
   };
 
   return (
     <header>
       <img src="/img/goscrum.png" alt="Logo" />
-      <div onClick={handleLogout}>x</div>
+      <div className="wrapper_right_header">
+        <div className="black">{localStorage.getItem("userName")}</div>
+        <div onClick={handleLogout}>x</div>
+      </div>
     </header>
   );
 };
