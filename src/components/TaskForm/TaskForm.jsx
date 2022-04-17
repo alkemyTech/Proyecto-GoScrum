@@ -1,37 +1,61 @@
-import "./TaskForm.styles.css";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import "./TaskForm.styles.css";
+
+const { REACT_APP_API_ENDPOINT: API_ENDPOINT } = process.env;
 
 export const TaskForm = () => {
   const initialValues = {
     title: "",
     status: "",
-    priority: "",
+    importance: "",
     description: "",
   };
 
   const onSubmit = () => {
-    alert();
+    fetch(`${API_ENDPOINT}task`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({ task: values }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        resetForm();
+        alert("Task created successfully");
+      });
   };
 
   const required = "* Este campo es requerido";
 
-  const validationSchema = Yup.object().shape({
-    title: Yup.string()
-      .min(6, "No tiene la longitud mínima")
-      .required(required),
-    status: Yup.string().required(required),
-    priority: Yup.string().required(required),
-  });
+  const validationSchema = () =>
+    Yup.object().shape({
+      title: Yup.string()
+        .min(6, "La cantidad mínima de caracteres es 6")
+        .required(required),
+      status: Yup.string().required(required),
+      description: Yup.string().required(required),
+      importance: Yup.string().required(required),
+    });
 
   const formik = useFormik({ initialValues, validationSchema, onSubmit });
 
-  const { handleChange, handleSubmit, errors, touched, handleBlur } = formik;
+  const {
+    handleSubmit,
+    handleChange,
+    errors,
+    touched,
+    handleBlur,
+    values,
+    resetForm,
+  } = formik;
 
   return (
-    <secteion className="task-form">
-      <h2>Crear Tarea</h2>
-      <p>Crear Tarea</p>
+    <section className="task-form">
+      <h2>Crear tarea</h2>
+      <p>Crea tus tareas</p>
       <form onSubmit={handleSubmit}>
         <div>
           <div>
@@ -41,6 +65,7 @@ export const TaskForm = () => {
               onBlur={handleBlur}
               placeholder="Título"
               className={errors.title && touched.title ? "error" : ""}
+              value={values.title}
             />
             {errors.title && touched.title && (
               <span className="error-message">{errors.title}</span>
@@ -52,6 +77,7 @@ export const TaskForm = () => {
               className={errors.status && touched.status ? "error" : ""}
               onChange={handleChange}
               onBlur={handleBlur}
+              value={values.status}
             >
               <option value="">Seleccionar un estado</option>
               <option value="NEW">Nueva</option>
@@ -64,18 +90,19 @@ export const TaskForm = () => {
           </div>
           <div>
             <select
-              name="priority"
+              name="importance"
               onChange={handleChange}
               onBlur={handleBlur}
-              className={errors.priority && touched.priority ? "error" : ""}
+              className={errors.importance && touched.importance ? "error" : ""}
+              value={values.importance}
             >
               <option value="">Seleccionar una prioridad</option>
               <option value="LOW">Baja</option>
               <option value="MEDIUM">Media</option>
               <option value="HIGH">Alta</option>
             </select>
-            {errors.priority && touched.priority && (
-              <span className="error-message">{errors.priority}</span>
+            {errors.importance && touched.importance && (
+              <span className="error-message">{errors.importance}</span>
             )}
           </div>
         </div>
@@ -86,6 +113,7 @@ export const TaskForm = () => {
             placeholder="Descripción"
             onBlur={handleBlur}
             className={errors.description && touched.description ? "error" : ""}
+            value={values.description}
           />
         </div>
         <div>
@@ -95,6 +123,6 @@ export const TaskForm = () => {
         </div>
         <button type="submit">Crear</button>
       </form>
-    </secteion>
+    </section>
   );
 };
