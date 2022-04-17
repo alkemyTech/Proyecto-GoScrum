@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
-import { Link } from "react-router-dom";
 import * as Yup from "yup";
+import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { Switch, FormControlLabel } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+
 import "../Auth.styles.css";
+
+const { REACT_APP_API_ENDPOINT } = process.env;
 
 export const Register = () => {
   const [data, setData] = useState();
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("//localhost:8000/auth/data")
+    fetch(`${REACT_APP_API_ENDPOINT}auth/data`)
       .then((response) => response.json())
       .then((data) => setData(data.result));
   }, []);
-
-  console.log({ data });
 
   const initialValues = {
     userName: "",
@@ -52,7 +53,7 @@ export const Register = () => {
   const onSubmit = () => {
     const teamID = !values.teamID ? uuidv4() : values.teamID;
 
-    fetch(`//localhost:8000/auth/register`, {
+    fetch(`${REACT_APP_API_ENDPOINT}auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,10 +83,10 @@ export const Register = () => {
   const {
     handleSubmit,
     handleChange,
+    errors,
     touched,
     handleBlur,
     values,
-    errors,
     setFieldValue,
   } = formik;
 
