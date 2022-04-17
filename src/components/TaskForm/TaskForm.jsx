@@ -1,5 +1,8 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import "./TaskForm.styles.css";
 
 const { REACT_APP_API_ENDPOINT: API_ENDPOINT } = process.env;
@@ -24,11 +27,11 @@ export const TaskForm = () => {
       .then((response) => response.json())
       .then((data) => {
         resetForm();
-        alert("Task created successfully");
+        toast("Tu tarea se creo");
       });
   };
 
-  const required = "* Este campo es requerido";
+  const required = "* Campo obligatorio";
 
   const validationSchema = () =>
     Yup.object().shape({
@@ -123,6 +126,7 @@ export const TaskForm = () => {
         </div>
         <button type="submit">Crear</button>
       </form>
+      <ToastContainer />
     </section>
   );
 };
