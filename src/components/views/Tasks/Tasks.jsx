@@ -1,12 +1,33 @@
+import { useEffect, useState } from "react";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import "./Tasks.styles.css";
 import { useResize } from "../../../hooks/useResize";
 import { Header } from "../../Header/Header";
-import { cardsData } from "./data";
 import { Card } from "../../../components/Card/Card";
 import { TaskForm } from "../../TaskForm/TaskForm";
 
+const { REACT_APP_API_ENDPOINT: API_ENDPOINT } = process.env;
+
 export const Tasks = () => {
+  const [list, setList] = useState(null);
+  const { loading, setLoading } = useState(false);
   const { isPhone } = useResize();
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API_ENDPOINT}task`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setList(data.result);
+        setLoading(false);
+      });
+  }, []);
 
   const limitString = (str) => {
     if (str.length > 170)
@@ -15,7 +36,25 @@ export const Tasks = () => {
   };
 
   const renderAllCards = () => {
-    return cardsData.map((data) => <Card key={data.id} data={data} />);
+    return list?.map((data) => <Card key={data._id} data={data} />);
+  };
+
+  const renderNewCards = () => {
+    return list
+      ?.filter((data) => data.status === "NEW")
+      .map((data) => <Card key={data._id} data={data} />);
+  };
+
+  const renderInProgressCards = () => {
+    return list
+      ?.filter((data) => data.status === "IN PROGRESS")
+      .map((data) => <Card key={data._id} data={data} />);
+  };
+
+  const renderFinishedCars = () => {
+    return list
+      ?.filter((data) => data.status === "FINISHED")
+      .map((data) => <Card key={data._id} data={data} />);
   };
 
   return (
@@ -28,59 +67,35 @@ export const Tasks = () => {
             <h2>Mis Tareas</h2>
           </div>
           {isPhone ? (
-            <div className="list phone">{renderAllCards()}</div>
+            !list?.length ? (
+              <div>No hay tareas creadas</div>
+            ) : loading ? (
+              <Skeleton />
+            ) : (
+              <div className="list phone">{renderAllCards()}</div>
+            )
           ) : (
             <div className="list_group">
-              <div className="list">
-                <div className="card">
-                  <div className="close">x</div>
-                  <h3>Tarea 1</h3>
-                  <h6>24/1/2022 16:40 hs.</h6>
-                  <h5>Facundo Uferer</h5>
-                  <button type="button">Nueva</button>
-                  <button type="button">Alta</button>
-                  <p>
-                    {
-                      limitString(`Contrary to popular belief, Lorem Ipsum is not simply random
-                    text. It has roots in a piece of classical Latin literature
-                    from 45 BC, making it over 2000 years old. Richard
-                    McClintock, a Latin professor at Hampden-Sydney College in
-                    Virginia, looked up one of the more obscure Latin words,
-                    consectetur, from a Lorem Ipsum passage, and going through
-                    the cites of the word in classical literature, discovered
-                    the undoubtable source. Lorem Ipsum comes from sections
-                    1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The
-                    Extremes of Good and Evil) by Cicero, written in 45 BC. This
-                    book is a treatise on the theory of ethics, very popular
-                    during the Renaissance. The first line of Lorem Ipsum,
-                    "Lore`).string
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div className="list">
-                <div className="card">
-                  <div className="close">x</div>
-                  <h3>Tarea 1</h3>
-                  <h6>24/1/2022 16:40 hs.</h6>
-                  <h5>Facundo Uferer</h5>
-                  <button type="button">Nueva</button>
-                  <button type="button">Alta</button>
-                  <p>Descripción fake</p>
-                </div>
-              </div>
-              <div className="list">
-                <div className="card">
-                  <div className="close">x</div>
-                  <h3>Tarea 1</h3>
-                  <h6>24/1/2022 16:40 hs.</h6>
-                  <h5>Facundo Uferer</h5>
-                  <button type="button">Nueva</button>
-                  <button type="button">Alta</button>
-                  <p>Descripción fake</p>
-                </div>
-              </div>
+              {!list?.length ? (
+                <div>No hay tareas creadas</div>
+              ) : loading ? (
+                <Skeleton />
+              ) : (
+                <>
+                  <div className="list">
+                    <h3>Nuevas</h3>
+                    {renderNewCards()}
+                  </div>
+                  <div className="list">
+                    <h3>En progreso</h3>
+                    {renderInProgressCards()}
+                  </div>
+                  <div className="list">
+                    <h3>Finalizadas</h3>
+                    {renderFinishedCars()}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
