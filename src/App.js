@@ -11,7 +11,7 @@ import { Tasks } from './components/views/Tasks/Tasks';
 const Error404 = lazy(() => import("./components/views/Error404/Error404"))
 
 const RequireAuth = ({ children }) => {
-  if (!localStorage.getItem("logged")) {
+  if (!localStorage.getItem("token")) {
     return <Navigate to="/login" replace={true} />
   }
   return children
