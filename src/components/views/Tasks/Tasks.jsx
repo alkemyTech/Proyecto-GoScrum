@@ -51,13 +51,17 @@ export const Tasks = () => {
   }, [search]);
 
   const renderAllCards = () => {
-    return renderList?.map((data) => <Card key={data._id} data={data} />);
+    return renderList?.map((data) => (
+      <Card key={data._id} data={data} deleteCard={handleDelete} />
+    ));
   };
 
   const renderColumnCards = (text) => {
     return renderList
       ?.filter((data) => data.status === text)
-      .map((data) => <Card key={data._id} data={data} />);
+      .map((data) => (
+        <Card key={data._id} data={data} deleteCard={handleDelete} />
+      ));
   };
 
   const handleChangeImportance = (event) => {
@@ -71,6 +75,10 @@ export const Tasks = () => {
   const handleSearch = debounce((event) => {
     setSearch(event?.target?.value);
   }, 1000);
+
+  const handleDelete = (id) => {
+    dispatch(deleteTask(id));
+  };
 
   if (error) return <div>Hay un error</div>;
 
