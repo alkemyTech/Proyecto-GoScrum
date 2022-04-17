@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Skeleton from "react-loading-skeleton";
 import {
   Radio,
@@ -6,39 +7,42 @@ import {
   FormControl,
   FormControlLabel,
 } from "@mui/material";
+import debounce from "lodash.debounce";
 import "react-loading-skeleton/dist/skeleton.css";
+
 import "./Tasks.styles.css";
+import {
+  getTasks,
+  deleteTask,
+  editTaskStatus,
+} from "../../../store/actions/tasksActions";
 import { useResize } from "../../../hooks/useResize";
 import { Header } from "../../Header/Header";
 import { TaskForm } from "../../TaskForm/TaskForm";
 import { Card } from "../../Card/Card";
-import debounce from "lodash.debounce";
-
-const { REACT_APP_API_ENDPOINT: API_ENDPOINT } = process.env;
 
 export const Tasks = () => {
   const [list, setList] = useState(null);
   const [renderList, setRenderList] = useState(null);
   const [tasksfromWho, setTasksfromWho] = useState("ALL");
-  const { loading, setLoading } = useState(false);
   const { isPhone } = useResize();
   const [search, setSearch] = useState("");
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`${API_ENDPOINT}task${tasksfromWho === "ME" ? "me" : ""}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setList(data.result);
-        setRenderList(data.result);
-        setLoading(false);
-      });
-  }, [tasksfromWho]);
+    dispatch(getTasks(tasksfromWho === "ME" ? "me" : ""));
+  }, [tasksfromWho, dispatch]);
+
+  const { tasks, error, loading } = useSelector((state) => {
+    return state.tasksReducer;
+  });
+
+  useEffect(() => {
+    if (tasks?.length) {
+      setList(tasks);
+      setRenderList(tasks);
+    }
+  }, [tasks]);
 
   useEffect(() => {
     if (search)
@@ -67,6 +71,8 @@ export const Tasks = () => {
   const handleSearch = debounce((event) => {
     setSearch(event?.target?.value);
   }, 1000);
+
+  if (error) return <div>Hay un error</div>;
 
   return (
     <>
