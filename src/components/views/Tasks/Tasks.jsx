@@ -46,12 +46,6 @@ export const Tasks = () => {
     else setRenderList(list);
   }, [search]);
 
-  const limitString = (str) => {
-    if (str.length > 170)
-      return { string: str.slice(0, 167).concat("..."), addButton: true };
-    return { string: str, addButton: false };
-  };
-
   const renderAllCards = () => {
     return renderList?.map((data) => <Card key={data._id} data={data} />);
   };
