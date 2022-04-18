@@ -19,6 +19,10 @@ export const Header = () => {
   return (
     <header>
       <img src="/img/goscrum.png" alt="Logo" />
+      <spam>
+        Estamos en el entorno {process.env.NODE_ENV} corriente en el puerto{" "}
+        {process.env.REACT_APP_PORT}
+      </spam>
       <div className="wrapper_right_header">
         <div>
           <button onClick={() => navigate("/donate", { replace: true })}>
