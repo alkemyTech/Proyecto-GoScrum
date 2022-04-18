@@ -1,0 +1,24 @@
+main {
+   min-height: 100vh;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+main section {
+   width: 100%;
+   padding: 20px;
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: center;
+   flex-direction: column;
+}
+
+@media screen and (min-width: 600px) {
+   main section {
+      border: var(--global-border);
+      width: 400px;
+      border-radius: var(--global-radius);
+      background-color: white;
+   }
+}

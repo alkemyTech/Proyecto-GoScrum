@@ -1,12 +1,13 @@
-import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { lazy, Suspense } from "react"
+import { Routes, Route, Navigate, useLocation } from "react-router-dom"
+import { AnimatePresence, motion } from "framer-motion"
 
-import './App.css';
-import { Login } from './components/views/auth/Login/Login';
-import { Register } from './components/views/auth/Register/Register';
+import "./App.css"
+import { Login } from "./components/views/auth/Login/Login"
+import { Tasks } from "./components/views/Tasks/Tasks"
+import { Donate } from "./components/views/Donate/Donate"
+import { Register } from "./components/views/auth/Register/Register"
 import Registered from "./components/views/Registered/Registered"
-import { Tasks } from './components/views/Tasks/Tasks';
 
 const Error404 = lazy(() => import("./components/views/Error404/Error404"))
 
@@ -47,6 +48,22 @@ export const App = () => {
               </RequireAuth>
             </motion.div>
           } />
+        <Route
+          path="/donate"
+          element={
+            <RequireAuth>
+              <motion.div
+                className="page"
+                initial="out"
+                animate="in"
+                exit="out"
+                variants={pageTransition}
+              >
+                <Donate />
+              </motion.div>
+            </RequireAuth>
+          }
+        />
         <Route path="/login" element={
           <motion.div
             className="page"
