@@ -52,7 +52,12 @@ export const Tasks = () => {
 
   const renderAllCards = () => {
     return renderList?.map((data) => (
-      <Card key={data._id} data={data} deleteCard={handleDelete} />
+      <Card
+        key={data._id}
+        data={data}
+        deleteCard={handleDelete}
+        editCardStatus={handleEditCardStatus}
+      />
     ));
   };
 
@@ -60,7 +65,12 @@ export const Tasks = () => {
     return renderList
       ?.filter((data) => data.status === text)
       .map((data) => (
-        <Card key={data._id} data={data} deleteCard={handleDelete} />
+        <Card
+          key={data._id}
+          data={data}
+          deleteCard={handleDelete}
+          editCardStatus={handleEditCardStatus}
+        />
       ));
   };
 
@@ -78,6 +88,10 @@ export const Tasks = () => {
 
   const handleDelete = (id) => {
     dispatch(deleteTask(id));
+  };
+
+  const handleEditCardStatus = (data) => {
+    dispatch(editTaskStatus(data));
   };
 
   if (error) return <div>Hay un error</div>;
